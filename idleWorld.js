@@ -93,7 +93,7 @@ function renderSpecial() { //renders the area-unique things, like the enemy, the
 			ctx.fillRect(200, 400, 400, 60);
 			ctx.fillStyle = "#615f65";
 			ctx.fillRect(205, 425, 390, 30);
-			var timeLeftRatio = (charStats.killTime - ((Date.now() - dateStart)/1000)).toFixed(3) / charStats.killTime;
+			var timeLeftRatio = (charStats.killTime - ((Date.now() - dateStart)/1000)).toFixed(2) / charStats.killTime;
 			if (timeLeftRatio <= 0) {
 				isMonsterDead = true;
 				setTimeout(function() {
@@ -108,7 +108,7 @@ function renderSpecial() { //renders the area-unique things, like the enemy, the
 				ctx.font = "15px Arial";
 				ctx.textAlign = "center";
 				ctx.textBaseline = "middle";
-				ctx.fillText((charStats.killTime - ((Date.now() - dateStart)/1000)).toFixed(3) + " S", 400, 440);
+				ctx.fillText((charStats.killTime - ((Date.now() - dateStart)/1000)).toFixed(2) + " S", 400, 440);
 			};
 		};
 	};
