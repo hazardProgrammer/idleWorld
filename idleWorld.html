@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Idle World</title>
+	</head>
+	<body>
+		<div id="canvas-div" style="position:a bsolute; left: 0; top: 0;">
+			<canvas id="canvas" width=800 height=600 style="position: absolute; left: 0px; top: 0px;">If you're reading this, your browser either doesn't support canvas or you have it turned on.</canvas>
+		</div>
+		<div id="username-div" style="position: absolute; left: 300px; top: 275px; width: 200px; height: 40px; z-index: 1">
+			<input id="username-input" style="width: 200px; height: 40px; text-align: center; font-family: Arial; font-size: 24px; font-weight: bold" placeholder="Enter Username" type="text">
+		</div>
+		<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+		<script src="idleWorld.js"></script>
+		<script>
+			window.onload = function(){init()}; //onload just to make sure
+		</script>
+	
+	</body>
+</html>
