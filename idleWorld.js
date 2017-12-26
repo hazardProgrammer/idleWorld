@@ -1,4 +1,4 @@
-//external script for overriding javascript timer while chrome tab is closed.
+//external script for overriding javascript timer while chrome tab is closed. Thanks, turuslan!
 (function(s){var w,f={},o=window,l=console,m=Math,z='postMessage',x='HackTimer.js by turuslan: ',v='Initialisation failed',p=0,r='hasOwnProperty',y=[].slice,b=o.Worker;function d(){do{p=0x7FFFFFFF>p?p+1:0}while(f[r](p));return p}if(!/MSIE 10/i.test(navigator.userAgent)){try{s=o.URL.createObjectURL(new Blob(["var f={},p=postMessage,r='hasOwnProperty';onmessage=function(e){var d=e.data,i=d.i,t=d[r]('t')?d.t:0;switch(d.n){case'a':f[i]=setInterval(function(){p(i)},t);break;case'b':if(f[r](i)){clearInterval(f[i]);delete f[i]}break;case'c':f[i]=setTimeout(function(){p(i);if(f[r](i))delete f[i]},t);break;case'd':if(f[r](i)){clearTimeout(f[i]);delete f[i]}break}}"]))}catch(e){}}if(typeof(b)!=='undefined'){try{w=new b(s);o.setInterval=function(c,t){var i=d();f[i]={c:c,p:y.call(arguments,2)};w[z]({n:'a',i:i,t:t});return i};o.clearInterval=function(i){if(f[r](i))delete f[i],w[z]({n:'b',i:i})};o.setTimeout=function(c,t){var i=d();f[i]={c:c,p:y.call(arguments,2),t:!0};w[z]({n:'c',i:i,t:t});return i};o.clearTimeout=function(i){if(f[r](i))delete f[i],w[z]({n:'d',i:i})};w.onmessage=function(e){var i=e.data,c,n;if(f[r](i)){n=f[i];c=n.c;if(n[r]('t'))delete f[i]}if(typeof(c)=='string')try{c=new Function(c)}catch(k){l.log(x+'Error parsing callback code string: ',k)}if(typeof(c)=='function')c.apply(o,n.p)};w.onerror=function(e){l.log(e)};l.log(x+'Initialisation succeeded')}catch(e){l.log(x+v);l.error(e)}}else l.log(x+v+' - HTML5 Web Worker is not supported')})('HackTimerWorker.min.js');
 
 
@@ -22,6 +22,8 @@ var frameChange;//changes
 var frame;//doesn't change
 var damageFloatX;
 var monstersKilled;
+var monsterNames;
+var img;
 
 function init() {
 	canvas = $("#canvas")[0];
@@ -33,19 +35,19 @@ function init() {
 	} else {
 		username = localStorage.getItem("username");
 	};
-	
+
 	if (localStorage.getItem("xp") === null) {
 		xp = 0;
 	} else {
 		xp = parseInt(localStorage.getItem("xp"), 10);
 	};
-	
+
 	if (localStorage.getItem("gold") === null) {
 		gold = 0;
 	} else {
 		gold = parseInt(localStorage.getItem("gold"), 10);
 	};
-	
+
 	level = 0;
 	xpCalcLevel = 0;
 	inMainScreen = true;
@@ -69,10 +71,16 @@ function init() {
 	frame = 0;
 	damageFloatX = 0;
 	monstersKilled = 0;
-	
+	monsterNames = ["Stickman"];
+	img = new Image();
+	img.src = "creature_stickman.png";
+	img.onload = function() {
+		ctx.drawImage(img, 350, 250);
+	}
+
 	getMonsterHealth(monsterStats.level);
 	monsterStats.health = monsterStats.maxHealth;
-	
+
 	run();
 }
 
@@ -114,8 +122,7 @@ function renderSpecial() { //renders the area-unique things, like the enemy, the
 	if (!loginScreen) {
 		if (inMainScreen) {
 			if (!isMonsterDead) {
-				ctx.fillStyle = "#bb2222";
-				ctx.fillRect(350, 250, 100, 100);
+				ctx.drawImage(img, 350, 250);
 			};
 			ctx.fillStyle = "#413f45";
 			ctx.fillRect(200, 380, 400, 100);
@@ -123,6 +130,8 @@ function renderSpecial() { //renders the area-unique things, like the enemy, the
 			ctx.textAlign = "left";
 			ctx.textBaseline = "middle";
 			ctx.fillText("LV. " + monsterStats.level, 210, 395);
+			ctx.textAlign = "right";
+			ctx.fillText(monsterNames[monsterStats.level - 1], 590, 395)
 			ctx.fillStyle = "#615f65";
 			ctx.fillRect(205, 410, 390, 30);
 			ctx.fillRect(205, 445, 390, 30);
@@ -208,7 +217,7 @@ function clickHandler(event) {
 			};
 		};
 	} else {
-		
+
 	};
 }
 
