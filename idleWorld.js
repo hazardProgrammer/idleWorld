@@ -20,6 +20,7 @@ var dateStart;
 var isMonsterDead;
 var frameChange;//changes
 var frame;//doesn't change
+var frameSinceClick;//time since last damage click
 var damageFloatX;
 var monstersKilled;
 var monsterNames;
@@ -61,19 +62,25 @@ function init() {
 			autoDamage: 0,
 			attackSpeed: 2,
 		},
+		clickStats : {
+			clickDamage: 0,
+			attackSpeed: 2,
+		},
 	};
 	monsterStats.xpGain = Math.round((2 * monsterStats.level) ** (1.5 + (1 / 64) * Math.round(monsterStats.level / 25)));
 	monsterStats.goldGain = Math.round((monsterStats.level * 2) ** (1.3 + Math.floor(monsterStats.level / 25) * 0.015));
 	charStats.autoStats.autoDamage = charStats.attackDamage;
+	charStats.clickStats.clickDamage = charStats.attackDamage;
 	dateStart = Date.now();
 	isMonsterDead = false;
 	frameChange = 0;
 	frame = 0;
+	frameSinceClick = 0;
 	damageFloatX = 0;
 	monstersKilled = 0;
 	monsterNames = ["Stickman"];
 	img = new Image();
-	img.src = "creature_stickman.png";
+	img.src = "img/creature_stickman.png";
 	img.onload = function() {
 		ctx.drawImage(img, 350, 250);
 	}
@@ -179,6 +186,7 @@ function renderSpecial() { //renders the area-unique things, like the enemy, the
 				ctx.font = "48px Arial";
 				ctx.fillText("Monster Killed!", 400, 300);
 				frameChange = 0;
+				frameSinceClick = 0;
 				monsterStats.xpGain = Math.round((2 * monsterStats.level) ** (1.5 + (1 / 64) * Math.round(monsterStats.level / 25)));
 				monsterStats.goldGain = Math.round((monsterStats.level * 2) ** (1.3 + Math.floor(monsterStats.level / 25) * 0.015));
 			};
@@ -216,8 +224,11 @@ function clickHandler(event) {
 				alert("Sorry, your username is too long. Please make it 16 letters or shorter.")
 			};
 		};
-	} else {
-
+	} else if (inMainScreen) {
+		if (frameChange !== 0 && frameSinceClick / (charStats.clickStats.attackSpeed * 100) >= 1) {
+			frameSinceClick = 0;
+			monsterStats.health -= charStats.clickStats.clickDamage;
+		};
 	};
 }
 
@@ -266,5 +277,6 @@ function run() {
 		}
 		frame++;
 		frameChange++;
+		frameSinceClick++;
 	}, 10);
 }
