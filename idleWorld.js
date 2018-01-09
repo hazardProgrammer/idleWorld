@@ -25,6 +25,7 @@ var damageFloatX;
 var monstersKilled;
 var monsterNames;
 var img;
+var overStartBtn;
 
 function init() {
 	canvas = $("#canvas")[0];
@@ -84,6 +85,7 @@ function init() {
 	img.onload = function() {
 		ctx.drawImage(img, 350, 250);
 	}
+	overStartBtn = false;
 
 	getMonsterHealth(monsterStats.level);
 	monsterStats.health = monsterStats.maxHealth;
@@ -105,8 +107,14 @@ function renderMain() {
 		ctx.textBaseline = "middle";
 		ctx.fillText("Enter Username", 400, 250);
 		ctx.fillStyle = "#8a1717";
+		if (overStartBtn) {
+			ctx.fillStyle = "#942121";
+		};
 		ctx.fillRect(315, 330, 170, 50);
 		ctx.fillStyle = "#a73434";
+		if (overStartBtn) {
+			ctx.fillStyle = "#b73434";
+		};
 		ctx.fillRect(320, 335, 160, 40);
 		ctx.fillStyle = "#000000";
 		ctx.fillText("Start", 400, 355)
@@ -125,7 +133,7 @@ function renderMain() {
 	};
 }
 
-function renderSpecial() { //renders the area-unique things, like the enemy, the trees, etc.
+function killMonsters() {
 	if (!loginScreen) {
 		if (inMainScreen) {
 			if (!isMonsterDead) {
@@ -210,7 +218,7 @@ function calcLevel() {
 }
 
 function clickHandler(event) {
-    var clickX = event.clientX - canvas.getBoundingClientRect().left;
+	var clickX = event.clientX - canvas.getBoundingClientRect().left;
     var clickY = event.clientY - canvas.getBoundingClientRect().top;
 	if (loginScreen) {
 		if (clickX >= 320 && clickX <= 480 && clickY >= 335 && clickY <= 375) {
@@ -219,6 +227,7 @@ function clickHandler(event) {
 				localStorage.setItem("username", username);
 				console.log("Your username is " + username);
 				loginScreen = false;
+				dateStart = Date.now();
 			} else {
 				usernameInput.value = "";
 				alert("Sorry, your username is too long. Please make it 16 letters or shorter.")
@@ -228,6 +237,18 @@ function clickHandler(event) {
 		if (frameChange !== 0 && frameSinceClick / (charStats.clickStats.attackSpeed * 100) >= 1) {
 			frameSinceClick = 0;
 			monsterStats.health -= charStats.clickStats.clickDamage;
+		};
+	};
+}
+
+function moveHandler(event) {
+	var mX = event.clientX - canvas.getBoundingClientRect().left;
+    var mY = event.clientY - canvas.getBoundingClientRect().top;
+	if (loginScreen) {
+		if (mX >= 320 && mX <= 480 && mY >= 335 && mY <= 375) {
+			overStartBtn = true;
+		} else {
+			overStartBtn = false;
 		};
 	};
 }
@@ -261,6 +282,7 @@ function resetGame() {
 }
 
 $("#canvas").click(clickHandler);
+$("#canvas").mousemove(moveHandler);
 
 function run() {
 	var interval = setInterval(function() {
@@ -269,7 +291,7 @@ function run() {
 		ctx.strokeRect(0, 0, 800, 600);
 		getMonsterHealth(monsterStats.level);
 		renderMain();
-		renderSpecial();
+		killMonsters();
 		hideHTMLElements();
 		calcLevel();
 		if (frame % 1000 === 0) {//saves every 10 seconds
