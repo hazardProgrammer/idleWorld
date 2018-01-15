@@ -146,7 +146,11 @@ function killMonsters() {
 			ctx.textBaseline = "middle";
 			ctx.fillText("LV. " + monsterStats.level, 210, 395);
 			ctx.textAlign = "right";
-			ctx.fillText(monsterNames[monsterStats.level - 1], 590, 395)
+			if (typeof monsterNames[monsterStats.level - 1] !== "undefined") {
+				ctx.fillText(monsterNames[monsterStats.level - 1], 590, 395);
+			} else {
+				ctx.fillText("Unnamed monster", 590, 395);
+			};
 			ctx.fillStyle = "#615f65";
 			ctx.fillRect(205, 410, 390, 30);
 			ctx.fillRect(205, 445, 390, 30);
@@ -161,6 +165,17 @@ function killMonsters() {
 					isMonsterDead = false;
 				}, 1000);
 			};
+			ctx.fillStyle = "#a21ca3";
+			ctx.beginPath();
+			ctx.moveTo(560, 160);
+			ctx.lineTo(560 + 20 * Math.sqrt(3) / 2, 170);
+			ctx.lineTo(560, 180);
+			ctx.fill();
+			ctx.beginPath();
+			ctx.moveTo(240, 160);
+			ctx.lineTo(240 - 20 * Math.sqrt(3) / 2, 170);
+			ctx.lineTo(240, 180);
+			ctx.fill();
 			if (!isMonsterDead) {
 				var healthLeftRatio = monsterStats.health / monsterStats.maxHealth;
 				ctx.fillStyle = "#d62124";
@@ -234,7 +249,11 @@ function clickHandler(event) {
 			};
 		};
 	} else if (inMainScreen) {
-		if (frameChange !== 0 && frameSinceClick / (charStats.clickStats.attackSpeed * 100) >= 1) {
+		if (clickX >= 560 && clickX <= 560 + 40 * Math.sqrt(3) / 2 && clickY >= 160 && clickY <= 180) {
+			monsterStats.level++;
+		} else if (clickX <= 240 && clickX >= 240 - 40 * Math.sqrt(3) / 2 && clickY >= 160 && clickY <= 180 && monsterStats.level > 1) {
+			monsterStats.level--;
+		} else if (frameChange !== 0 && frameSinceClick / (charStats.clickStats.attackSpeed * 100) >= 1) {
 			frameSinceClick = 0;
 			monsterStats.health -= charStats.clickStats.clickDamage;
 		};
