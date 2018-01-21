@@ -49,13 +49,17 @@ function init() {
 	} else {
 		gold = parseInt(localStorage.getItem("gold"), 10);
 	};
-
 	level = 0;
 	xpCalcLevel = 0;
 	inMainScreen = true;
 	monsterStats = {
 		killTime: 10,
 		level: 1,
+	};
+	if (localStorage.getItem("mLevel") === null) {
+		monsterStats.level = 1;
+	} else {
+		monsterStats.level = parseInt(localStorage.getItem("mLevel"))
 	};
 	charStats = {
 		attackDamage: 5,
@@ -79,11 +83,17 @@ function init() {
 	frameSinceClick = 0;
 	damageFloatX = 0;
 	monstersKilled = 0;
-	monsterNames = ["Stickman"];
-	img = new Image();
-	img.src = "img/creature_stickman.png";
-	img.onload = function() {
-		ctx.drawImage(img, 350, 250);
+	monsterNames = ["Stickman", "Stickman Fighter"];
+	img = [];
+	img[0] = new Image();
+	img[0].src = "img/creature_stickman.png";
+	img[0].onload = function() {
+		ctx.drawImage(img[0], 350, 250);
+	}
+	img[1] = new Image();
+	img[1].src = "img/creature_stickman-fighter.png";
+	img[1].onload = function() {
+		ctx.drawImage(img[1], 350, 250);
 	}
 	overStartBtn = false;
 
@@ -137,7 +147,11 @@ function killMonsters() {
 	if (!loginScreen) {
 		if (inMainScreen) {
 			if (!isMonsterDead) {
-				ctx.drawImage(img, 350, 250);
+				if (monsterStats.level % 2 === 1) {
+					ctx.drawImage(img[0], 350, 250);
+				} else {
+					ctx.drawImage(img[1], 350, 250);
+				};
 			};
 			ctx.fillStyle = "#413f45";
 			ctx.fillRect(200, 380, 400, 100);
@@ -149,7 +163,7 @@ function killMonsters() {
 			if (typeof monsterNames[monsterStats.level - 1] !== "undefined") {
 				ctx.fillText(monsterNames[monsterStats.level - 1], 590, 395);
 			} else {
-				ctx.fillText("Unnamed monster", 590, 395);
+				ctx.fillText(monsterNames[2 - (monsterStats.level % 2) - 1] + " " + Math.ceil(monsterStats.level / 2), 590, 395);
 			};
 			ctx.fillStyle = "#615f65";
 			ctx.fillRect(205, 410, 390, 30);
@@ -291,6 +305,7 @@ function updateDPS() {
 function save() {
 	localStorage.setItem("xp", xp);
 	localStorage.setItem("gold", gold);
+	localStorage.setItem("mLevel", monsterStats.level);
 }
 
 function resetGame() {
@@ -298,6 +313,7 @@ function resetGame() {
 	localStorage.removeItem("username");
 	localStorage.removeItem("xp");
 	localStorage.removeItem("gold");
+	localStorage.setItem("mLevel", monsterStats.level);
 }
 
 $("#canvas").click(clickHandler);
