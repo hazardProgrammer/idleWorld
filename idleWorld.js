@@ -298,8 +298,12 @@ function clickHandler(event) {
 	} else {
 		if (clickX >= 560 && clickX <= 560 + 40 * Math.sqrt(3) / 2 && clickY >= 160 && clickY <= 180) {
 			monsterStats.level++;
+			getMonsterHealth(monsterStats.level);
+			monsterStats.health = monsterStats.maxHealth;
 		} else if (clickX <= 240 && clickX >= 240 - 40 * Math.sqrt(3) / 2 && clickY >= 160 && clickY <= 180 && monsterStats.level > 1) {
 			monsterStats.level--;
+			getMonsterHealth(monsterStats.level);
+			monsterStats.health = monsterStats.maxHealth;
 		};
 		if (!upgradesBox) {
 			if (clickX >= 405 && clickX <= 485 && clickY >= 0 && clickY <= 80) {
