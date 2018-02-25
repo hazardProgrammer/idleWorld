@@ -26,6 +26,7 @@ var monsterNames;
 var img;
 var overStartBtn;
 var upgradesBox;
+var upgradeLevels;
 
 function init() {
 	canvas = $("#canvas")[0];
@@ -95,8 +96,14 @@ function init() {
 	img[1].onload = function() {
 		ctx.drawImage(img[1], 350, 250);
 	}
+	img[2] = new Image();
+	img[2].src = "img/sword.png"
 	overStartBtn = false;
 	upgradesBox = false;
+	upgradeLevels = [1];
+	/*
+		index 0: Auto Damage
+	*/
 
 	getMonsterHealth(monsterStats.level);
 	monsterStats.health = monsterStats.maxHealth;
@@ -155,23 +162,36 @@ function renderMain() {
 			ctx.fillStyle = "rgba(10, 10, 10, 0.8)";
 			ctx.fillRect(0, 0, 800, 600);
 			ctx.fillStyle = "#4d2001";
-			ctx.fillRect(100, 100, 600, 400);
+			ctx.fillRect(100, 80, 600, 440);
 			ctx.fillStyle = "#7d4f20";
-			ctx.fillRect(105, 105, 590, 390);
+			ctx.fillRect(105, 85, 590, 430);
 			ctx.fillStyle = "#ff6535";
-			ctx.fillRect(670, 70, 60, 60);
+			ctx.fillRect(670, 50, 60, 60);
 			ctx.fillStyle = "#ffffff";
 			ctx.textAlign = "center";
 			ctx.textBaseline = "middle";
 			ctx.font = "50px Arial";
-			ctx.fillText("X", 700, 100);
+			ctx.fillText("X", 700, 80);
 			ctx.fillStyle = "#4d2001";
-			ctx.fillRect(250, 75, 300, 50);
+			ctx.fillRect(250, 55, 300, 50);
 			ctx.fillStyle = "#7d4f20";
-			ctx.fillRect(255, 80, 290, 40);
+			ctx.fillRect(255, 60, 290, 40);
 			ctx.font = "30px Arial";
 			ctx.fillStyle = "#ffffff";
-			ctx.fillText("Upgrades", 400, 100);
+			ctx.fillText("Upgrades", 400, 80);
+			ctx.fillStyle = "#5d3011";
+			ctx.fillRect(125, 110, 250, 120);
+			ctx.fillStyle = "#4d2001";
+			ctx.fillRect(135, 140, 80, 80);
+			ctx.drawImage(img[2], 135, 140);
+			ctx.fillStyle = "#ffffff";
+			ctx.font = "14px Arial";
+			ctx.textAlign = "left";
+			ctx.fillText("Auto Damage", 135, 125);
+			ctx.fillText("Level " + upgradeLevels[0], 240, 125)
+			ctx.fillText("Cost: " + (100 * (upgradeLevels[0] + 2) ** 2) + " gold", 240, 150);
+			ctx.fillText("Current: " + Math.round(upgradeLevels[0] ** 1.35) + " dmg", 240, 175);
+			ctx.fillText("Next Level: " + Math.round((upgradeLevels[0] + 1) ** 1.35) + " dmg", 240, 200);
 		};
 	};
 }
