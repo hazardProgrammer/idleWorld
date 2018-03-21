@@ -18,15 +18,18 @@ var charStats;
 var dateStart;
 var isMonsterDead;
 var frameChange;//changes
+var frameChange2;
 var frame;//doesn't change
 var frameSinceClick;//time since last damage click
-var damageFloatX;
+var damageFloatXAuto;
+var damageFloatXClick;
 var monstersKilled;
 var monsterNames;
 var img;
 var overStartBtn;
 var upgradesBox;
 var upgradeLevels;
+var clicked;
 
 function init() {
 	canvas = $("#canvas")[0];
@@ -80,9 +83,11 @@ function init() {
 	dateStart = Date.now();
 	isMonsterDead = false;
 	frameChange = 0;
+	frameChange2 = 0;
 	frame = 0;
 	frameSinceClick = 0;
-	damageFloatX = 0;
+	damageFloatXAuto = 0;
+	damageFloatXClick = 0;
 	monstersKilled = 0;
 	monsterNames = ["Stickman", "Stickman Fighter"];
 	img = [];
@@ -180,7 +185,7 @@ function renderMain() {
 			ctx.fillStyle = "#ffffff";
 			ctx.fillText("Upgrades", 400, 80);
 			ctx.fillStyle = "#5d3011";
-			ctx.fillRect(125, 110, 250, 120);
+			ctx.fillRect(125, 110, 250, 120);//here
 			ctx.fillStyle = "#4d2001";
 			ctx.fillRect(135, 140, 80, 80);
 			ctx.drawImage(img[2], 135, 140);
@@ -210,6 +215,7 @@ function killMonsters() {
 		ctx.fillStyle = "#413f45";
 		ctx.fillRect(200, 380, 400, 100);
 		ctx.fillStyle = "#ffffff";
+		ctx.font = "16px Arial";
 		ctx.textAlign = "left";
 		ctx.textBaseline = "middle";
 		ctx.fillText("LV. " + monsterStats.level, 210, 395);
@@ -259,18 +265,35 @@ function killMonsters() {
 			ctx.fillText((monsterStats.killTime - ((Date.now() - dateStart)/1000)).toFixed(2) + " S", 400, 460);
 			ctx.fillText(monsterStats.health +  " / " + monsterStats.maxHealth, 400, 425);
 			i = frameChange % (charStats.autoStats.attackSpeed * 100);
-			if (i === 0 || i < 30) {
+			if (i === 0 || i <= 30) {
 				if (i === 0 && frameChange !== 0) {
 					monsterStats.health -= charStats.autoStats.autoDamage;
 				} else {
 					ctx.font = "32px Arial";
-					ctx.fillStyle = "rgba(255, 102, 0, " + (1 - (damageFloatX / 120));
-					ctx.fillText(charStats.autoStats.autoDamage, 400, 300 - damageFloatX);
-					damageFloatX += 3;
+					ctx.fillStyle = "rgba(255, 102, 0, " + (1 - (damageFloatXAuto / 120)) + ")";
+					ctx.fillText(charStats.autoStats.autoDamage, 400, 300 - damageFloatXAuto);
+					damageFloatXAuto += 3;
 				}
 			} else {
-				damageFloatX = 0;
+				damageFloatXAuto = 0;
 			};
+			frameChange2 = 0;
+			if (clicked) {
+				if (frameChange2 <= 30) {
+					ctx.font = "32px Arial";
+					ctx.fillStyle = "rgba(255, 145, 121, " + (1 - (damageFloatXClick / 120)) + ")";
+					ctx.fillText(charStats.clickStats.clickDamage, 400, 300 - damageFloatXClick);
+					damageFloatXClick += 3;
+					frameChange2++;
+				} else {
+					frameChange2 = 0;
+					damageFloatXClick = 0;
+					clearInterval(interval)
+				}
+			} else {
+				damageFloatXClick = 0;
+				frameChange2 = 0;
+			}
 		} else {
 			monsterStats.health = monsterStats.maxHealth;
 			ctx.fillStyle = "#ff5500";
@@ -282,6 +305,11 @@ function killMonsters() {
 			frameSinceClick = 0;
 		};
 	};
+}
+
+function clickDamageDisplay() {
+	clicked = true;
+	setTimeout(function() {clicked = false}, 300)
 }
 
 function hideHTMLElements() {
@@ -331,13 +359,27 @@ function clickHandler(event) {
 			} else if (frameChange !== 0 && frameSinceClick / (charStats.clickStats.attackSpeed * 100) >= 1) {
 				frameSinceClick = 0;
 				monsterStats.health -= charStats.clickStats.clickDamage;
+				clickDamageDisplay();
 			};
 		} else {
 			if (clickX >= 670 && clickX <= 730 && clickY >= 70 && clickY <= 130) {
 				upgradesBox = false;
+			} else if (clickX >= 125 && clickX <= 365 && clickY >= 110 && clickY <= 230) {
+				upgrade("auto", "damage")
 			};
 		};
 	};
+}
+
+function upgrade(type, upg) {
+	if (type === "auto") {
+		if (upg === "damage") {
+			if ((100 * (upgradeLevels[0] + 2) ** 2) <= gold) {
+				upgradeLevels[0]++;
+
+			}
+		}
+	}
 }
 
 function moveHandler(event) {
@@ -365,7 +407,10 @@ function getMonsterHealth(level) {
 }
 
 function updateDPS() {
-	charStats.attackDamage = Math.round((level * 2 + 2) ** 1.2);
+	levelDamage = Math.round((level * 2 + 2) ** 1.2);
+	upgradeDamage = Math.round(upgradeLevels[0] ** 1.35)
+	charStats.attackDamage = levelDamage + upgradeDamage;
+	charStats.clickDamage = levelDamage;
 }
 
 function save() {
@@ -401,5 +446,6 @@ function run() {
 		frame++;
 		frameChange++;
 		frameSinceClick++;
+		//I should really put this into a function
 	}, 10);
 }
