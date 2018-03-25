@@ -1,4 +1,4 @@
-//external script for overriding javascript timer while chrome tab is closed. Thanks, turuslan!
+//external script for overriding javascript timer while chrome tab is closed. Thanks, turuslan! (https://github.com/turuslan/HackTimer)
 (function(s){var w,f={},o=window,l=console,m=Math,z='postMessage',x='HackTimer.js by turuslan: ',v='Initialisation failed',p=0,r='hasOwnProperty',y=[].slice,b=o.Worker;function d(){do{p=0x7FFFFFFF>p?p+1:0}while(f[r](p));return p}if(!/MSIE 10/i.test(navigator.userAgent)){try{s=o.URL.createObjectURL(new Blob(["var f={},p=postMessage,r='hasOwnProperty';onmessage=function(e){var d=e.data,i=d.i,t=d[r]('t')?d.t:0;switch(d.n){case'a':f[i]=setInterval(function(){p(i)},t);break;case'b':if(f[r](i)){clearInterval(f[i]);delete f[i]}break;case'c':f[i]=setTimeout(function(){p(i);if(f[r](i))delete f[i]},t);break;case'd':if(f[r](i)){clearTimeout(f[i]);delete f[i]}break}}"]))}catch(e){}}if(typeof(b)!=='undefined'){try{w=new b(s);o.setInterval=function(c,t){var i=d();f[i]={c:c,p:y.call(arguments,2)};w[z]({n:'a',i:i,t:t});return i};o.clearInterval=function(i){if(f[r](i))delete f[i],w[z]({n:'b',i:i})};o.setTimeout=function(c,t){var i=d();f[i]={c:c,p:y.call(arguments,2),t:!0};w[z]({n:'c',i:i,t:t});return i};o.clearTimeout=function(i){if(f[r](i))delete f[i],w[z]({n:'d',i:i})};w.onmessage=function(e){var i=e.data,c,n;if(f[r](i)){n=f[i];c=n.c;if(n[r]('t'))delete f[i]}if(typeof(c)=='string')try{c=new Function(c)}catch(k){l.log(x+'Error parsing callback code string: ',k)}if(typeof(c)=='function')c.apply(o,n.p)};w.onerror=function(e){l.log(e)};l.log(x+'Initialisation succeeded')}catch(e){l.log(x+v);l.error(e)}}else l.log(x+v+' - HTML5 Web Worker is not supported')})('HackTimerWorker.min.js');
 
 
@@ -42,28 +42,11 @@ function init() {
 		username = localStorage.getItem("username");
 		inMainScreen = true;
 	};
-
-	if (localStorage.getItem("xp") === null) {
-		xp = 0;
-	} else {
-		xp = parseInt(localStorage.getItem("xp"), 10);
-	};
-
-	if (localStorage.getItem("gold") === null) {
-		gold = 0;
-	} else {
-		gold = parseInt(localStorage.getItem("gold"), 10);
-	};
 	level = 0;
 	xpCalcLevel = 0;
 	monsterStats = {
 		killTime: 10,
 		level: 1,
-	};
-	if (localStorage.getItem("mLevel") === null) {
-		monsterStats.level = 1;
-	} else {
-		monsterStats.level = parseInt(localStorage.getItem("mLevel"))
 	};
 	charStats = {
 		attackDamage: 5,
@@ -112,8 +95,23 @@ function init() {
 
 	getMonsterHealth(monsterStats.level);
 	monsterStats.health = monsterStats.maxHealth;
-
+	loadSave();
 	run();
+}
+
+function loadSave() {
+	if (localStorage.getItem("mLevel") !== null) {
+		monsterStats.level = parseInt(localStorage.getItem("mLevel"));
+	}
+	if (localStorage.getItem("upgrades") !== null) {
+		upgrades = parseJSON(localStorage.getItem("upgrades"));
+	};
+	if (localStorage.getItem("xp") !== null) {
+		xp = parseInt(localStorage.getItem("xp"), 10);
+	};
+	if (localStorage.getItem("gold") === null) {
+		gold = parseInt(localStorage.getItem("gold"), 10);
+	};
 }
 
 function renderMain() {
@@ -417,6 +415,7 @@ function save() {
 	localStorage.setItem("xp", xp);
 	localStorage.setItem("gold", gold);
 	localStorage.setItem("mLevel", monsterStats.level);
+	localStorage.setItem("upgrades", upgradeLevels);
 }
 
 function resetGame() {
@@ -425,6 +424,7 @@ function resetGame() {
 	localStorage.removeItem("xp");
 	localStorage.removeItem("gold");
 	localStorage.removeItem("mLevel");
+	localStorage.removeItem("upgrades");
 }
 
 $("#canvas").click(clickHandler);
