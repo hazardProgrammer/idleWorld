@@ -25,7 +25,8 @@ var damageFloatXAuto;
 var damageFloatXClick;
 var monstersKilled;
 var monsterNames;
-var img;
+var monsterImg
+var upgradeImg;
 var overStartBtn;
 var upgradesBox;
 var upgradeLevels;
@@ -43,6 +44,8 @@ function init() {
 		inMainScreen = true;
 	};
 	level = 0;
+	gold = 0;
+	xp = 0;
 	xpCalcLevel = 0;
 	monsterStats = {
 		killTime: 10,
@@ -72,20 +75,8 @@ function init() {
 	damageFloatXAuto = 0;
 	damageFloatXClick = 0;
 	monstersKilled = 0;
-	monsterNames = ["Stickman", "Stickman Fighter"];
-	img = [];
-	img[0] = new Image();
-	img[0].src = "img/creature_stickman.png";
-	img[0].onload = function() {
-		ctx.drawImage(img[0], 350, 250);
-	}
-	img[1] = new Image();
-	img[1].src = "img/creature_stickman-fighter.png";
-	img[1].onload = function() {
-		ctx.drawImage(img[1], 350, 250);
-	}
-	img[2] = new Image();
-	img[2].src = "img/sword.png"
+	monsterNames = ["Stickman", "Stickman Fighter", "Stickman Warrior"];
+	loadImg();
 	overStartBtn = false;
 	upgradesBox = false;
 	upgradeLevels = [1];
@@ -99,17 +90,30 @@ function init() {
 	run();
 }
 
+function loadImg() {
+	upgradeImg = [];
+	monsterImg = [];
+	monsterImg[0] = new Image();
+	monsterImg[0].src = "img/creature_stickman.png";
+	monsterImg[1] = new Image();
+	monsterImg[1].src = "img/creature_stickman-fighter.png";
+	monsterImg[2] = new Image();
+	monsterImg[2].src = "img/creature_stickman-warrior.png";
+	upgradeImg[0] = new Image();
+	upgradeImg[0].src = "img/sword.png"
+}
+
 function loadSave() {
 	if (localStorage.getItem("mLevel") !== null) {
 		monsterStats.level = parseInt(localStorage.getItem("mLevel"));
 	}
 	if (localStorage.getItem("upgrades") !== null) {
-		upgrades = parseJSON(localStorage.getItem("upgrades"));
+		upgrades = JSON.parse(localStorage.getItem("upgrades"));
 	};
 	if (localStorage.getItem("xp") !== null) {
 		xp = parseInt(localStorage.getItem("xp"), 10);
 	};
-	if (localStorage.getItem("gold") === null) {
+	if (localStorage.getItem("gold") !== null) {
 		gold = parseInt(localStorage.getItem("gold"), 10);
 	};
 }
@@ -161,6 +165,7 @@ function renderMain() {
 		ctx.textBaseline = "top";
 		ctx.font = "16px Arial";
 		ctx.fillText("Upgrades", 445, 10);
+		ctx.fillStyle = "#000000";
 		if (upgradesBox) {
 			ctx.fillStyle = "rgba(10, 10, 10, 0.8)";
 			ctx.fillRect(0, 0, 800, 600);
@@ -186,7 +191,7 @@ function renderMain() {
 			ctx.fillRect(125, 110, 250, 120);//here
 			ctx.fillStyle = "#4d2001";
 			ctx.fillRect(135, 140, 80, 80);
-			ctx.drawImage(img[2], 135, 140);
+			ctx.drawImage(upgradeImg[0], 135, 140);
 			ctx.fillStyle = "#ffffff";
 			ctx.font = "14px Arial";
 			ctx.textAlign = "left";
@@ -204,10 +209,13 @@ function killMonsters() {
 		monsterStats.xpGain = Math.round((2 * monsterStats.level) ** (1.5 + (1 / 64) * Math.round(monsterStats.level / 25)));
 		monsterStats.goldGain = Math.round((monsterStats.level * 2) ** (1.3 + Math.floor(monsterStats.level / 25) * 0.015));
 		if (!isMonsterDead) {
-			if (monsterStats.level % 2 === 1) {
-				ctx.drawImage(img[0], 350, 250);
-			} else {
-				ctx.drawImage(img[1], 350, 250);
+			var mod = monsterStats.level % monsterImg.length;
+			if (mod === 1) {
+				ctx.drawImage(monsterImg[0], 350, 250);
+			} else if (mod === 2) {
+				ctx.drawImage(monsterImg[1], 350, 250);
+			} else if (mod === 0) {
+				ctx.drawImage(monsterImg[2], 350, 250);
 			};
 		};
 		ctx.fillStyle = "#413f45";
@@ -221,7 +229,8 @@ function killMonsters() {
 		if (typeof monsterNames[monsterStats.level - 1] !== "undefined") {
 			ctx.fillText(monsterNames[monsterStats.level - 1], 590, 395);
 		} else {
-			ctx.fillText(monsterNames[2 - (monsterStats.level % 2) - 1] + " " + Math.ceil(monsterStats.level / 2), 590, 395);
+			var mod = monsterStats.level % monsterImg.length;
+			ctx.fillText(monsterNames[2 - (mod - 1)] + " " + Math.ceil(monsterStats.level / 2), 590, 395);
 		};
 		ctx.fillStyle = "#615f65";
 		ctx.fillRect(205, 410, 390, 30);
