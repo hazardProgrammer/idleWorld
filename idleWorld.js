@@ -29,7 +29,7 @@ var monsterImg
 var upgradeImg;
 var overStartBtn;
 var upgradesBox;
-var upgradeLevels;
+var upgradeInfo;
 var clicked;
 
 function init() {
@@ -62,7 +62,7 @@ function init() {
 			attackSpeed: 2,
 		},
 	};
-	monsterStats.xpGain = Math.round((2 * monsterStats.level) ** (1.5 + (1 / 64) * Math.round(monsterStats.level / 25)));
+	monsterStats.xpGain = Math.round((2 * monsterStats.level) ** (1.6 + (1 / 64) * Math.round(monsterStats.level)));
 	monsterStats.goldGain = Math.round((monsterStats.level * 2) ** (1.3 + Math.floor(monsterStats.level / 25) * 0.015));
 	charStats.autoStats.autoDamage = charStats.attackDamage;
 	charStats.clickStats.clickDamage = charStats.attackDamage;
@@ -79,11 +79,8 @@ function init() {
 	loadImg();
 	overStartBtn = false;
 	upgradesBox = false;
-	upgradeLevels = [1];
-	/*
-		index 0: Auto Damage
-	*/
-
+	upgradeInfo = [[0, "Auto Damage"],[0, "Auto Speed"]];
+	//format: [[upgrade 1 level, upgrade 1 name], [upgrade 2 level], [upgrade 2 name]]
 	getMonsterHealth(monsterStats.level);
 	monsterStats.health = monsterStats.maxHealth;
 	loadSave();
@@ -101,6 +98,8 @@ function loadImg() {
 	monsterImg[2].src = "img/creature_stickman-warrior.png";
 	upgradeImg[0] = new Image();
 	upgradeImg[0].src = "img/sword.png"
+	upgradeImg[1] = new Image();
+	upgradeImg[1].src = "img/sword-wings.png"
 }
 
 function loadSave() {
@@ -133,12 +132,12 @@ function renderMain() {
 		ctx.fillText("Enter Username", 400, 250);
 		ctx.fillStyle = "#8a1717";
 		if (overStartBtn) {
-			ctx.fillStyle = "#942121";
+			ctx.fillStyle = "#8d1a1a";//add 3 for border
 		};
 		ctx.fillRect(315, 330, 170, 50);
 		ctx.fillStyle = "#a73434";
 		if (overStartBtn) {
-			ctx.fillStyle = "#b73434";
+			ctx.fillStyle = "#ac3939";//add 5 for main
 		};
 		ctx.fillRect(320, 335, 160, 40);
 		ctx.fillStyle = "#000000";
@@ -170,38 +169,67 @@ function renderMain() {
 			ctx.fillStyle = "rgba(10, 10, 10, 0.8)";
 			ctx.fillRect(0, 0, 800, 600);
 			ctx.fillStyle = "#4d2001";
-			ctx.fillRect(100, 80, 600, 440);
+			ctx.fillRect(120, 80, 600, 440);
 			ctx.fillStyle = "#7d4f20";
-			ctx.fillRect(105, 85, 590, 430);
+			ctx.fillRect(125, 85, 590, 430);
 			ctx.fillStyle = "#ff6535";
-			ctx.fillRect(670, 50, 60, 60);
+			ctx.fillRect(695, 55, 50, 50);
 			ctx.fillStyle = "#ffffff";
 			ctx.textAlign = "center";
 			ctx.textBaseline = "middle";
-			ctx.font = "50px Arial";
-			ctx.fillText("X", 700, 80);
+			ctx.font = "40px Arial";
+			ctx.fillText("X", 720, 80);
 			ctx.fillStyle = "#4d2001";
-			ctx.fillRect(250, 55, 300, 50);
+			ctx.fillRect(270, 55, 300, 50);
 			ctx.fillStyle = "#7d4f20";
-			ctx.fillRect(255, 60, 290, 40);
+			ctx.fillRect(275, 60, 290, 40);
 			ctx.font = "30px Arial";
 			ctx.fillStyle = "#ffffff";
-			ctx.fillText("Upgrades", 400, 80);
-			ctx.fillStyle = "#5d3011";
-			ctx.fillRect(125, 110, 250, 120);//here
-			ctx.fillStyle = "#4d2001";
-			ctx.fillRect(135, 140, 80, 80);
-			ctx.drawImage(upgradeImg[0], 135, 140);
-			ctx.fillStyle = "#ffffff";
-			ctx.font = "14px Arial";
-			ctx.textAlign = "left";
-			ctx.fillText("Auto Damage", 135, 125);
-			ctx.fillText("Level " + upgradeLevels[0], 240, 125)
-			ctx.fillText("Cost: " + (100 * (upgradeLevels[0] + 2) ** 2) + " gold", 240, 150);
-			ctx.fillText("Current: " + Math.round(upgradeLevels[0] ** 1.35) + " dmg", 240, 175);
-			ctx.fillText("Next Level: " + Math.round((upgradeLevels[0] + 1) ** 1.35) + " dmg", 240, 200);
+			ctx.fillText("Upgrades", 420, 80);
+			drawUpgradeBox(155, 110, 0, "1");
+			drawUpgradeBox(435, 110, 1, "2")
 		};
 	};
+}
+
+function drawUpgradeBox(x, y, index, typeIncrease) {
+	ctx.fillStyle = "#5d3011";
+	ctx.fillRect(x, y, 250, 120);
+	ctx.fillStyle = "#4d2001";
+	ctx.fillRect(x + 10, y + 30, 80, 80);
+	ctx.drawImage(upgradeImg[index], x + 10, y + 30);
+	ctx.fillStyle = "#ffffff";
+	ctx.font = "14px Arial";
+	ctx.textAlign = "left";
+	ctx.fillText(upgradeInfo[index][1], x + 10, y + 15);
+	ctx.fillText("Level " + upgradeInfo[index][0], x + 115, y + 15)
+	ctx.fillText("Cost: " + evalCost(typeIncrease, index) + " gold", x + 115, y + 40);
+	ctx.fillText("Current: " + evalIncrease(typeIncrease + ".1", index), x + 115, y + 65);
+	ctx.fillText("Next Level: " + evalIncrease(typeIncrease + ".2", index), x + 115, y + 90);
+}
+
+function evalIncrease(type, index) {
+	var ret;
+	if (type === "1.1") { //Extremely confusing. Don't do.
+		ret = "+" + Math.round(upgradeInfo[index][0] ** 1.35) + " dmg";
+	} else if (type === "1.2") {
+		ret = "+" + Math.round((upgradeInfo[index][0] + 1) ** 1.35) + " dmg";
+	} else if (type === "2.1") {
+		ret = "+" + (upgradeInfo[index][0]) / 2 + " spd";
+	} else if (type === "2.2") {
+		ret = "+" + (upgradeInfo[index][0] + 1) / 2 + " spd";
+	};
+	return ret;
+}
+
+function evalCost(type, index) {
+	var ret;
+	if (type === "1") {
+		ret = 100 * (upgradeInfo[index][0] + 2) ** 2;
+	} else if (type === "2") {
+		ret = 250 * (upgradeInfo[index][0] + 2) ** 5;
+	}
+	return ret;
 }
 
 function killMonsters() {
@@ -274,7 +302,7 @@ function killMonsters() {
 			i = frameChange % (charStats.autoStats.attackSpeed * 100);
 			if (i === 0 || i <= 30) {
 				if (i === 0 && frameChange !== 0) {
-					monsterStats.health -= charStats.autoStats.autoDamage;
+					monsterStats.health -= charStats.autoStats.autoDamage;//attack
 				} else {
 					ctx.font = "32px Arial";
 					ctx.fillStyle = "rgba(255, 102, 0, " + (1 - (damageFloatXAuto / 120)) + ")";
@@ -328,9 +356,10 @@ function hideHTMLElements() {
 function calcLevel() {
 	if (xpCalcLevel <= xp) {
 		level++;
-		xpCalcLevel += (level + 2) ** 3;
+		xpCalcLevel += Math.round((level + 4) ** 3.6 + (xp / 100));
 		updateDPS();
 		charStats.autoStats.autoDamage = charStats.attackDamage;
+		charStats.clickStats.clickDamage = charStats.attackDamage;
 	};
 }
 
@@ -339,15 +368,17 @@ function clickHandler(event) {
     var clickY = event.clientY - canvas.getBoundingClientRect().top;
 	if (!inMainScreen) {
 		if (clickX >= 320 && clickX <= 480 && clickY >= 335 && clickY <= 375) {
-			if (usernameInput.value.length <= 16) {
+			if (usernameInput.value.length <= 16 && usernameInput.value.length > 0) {
 				username = usernameInput.value;
 				localStorage.setItem("username", username);
 				console.log("Your username is " + username);
 				inMainScreen = true;
 				dateStart = Date.now();
-			} else {
+			} else if (usernameInput.value.length > 16){
 				usernameInput.value = "";
 				alert("Sorry, your username is too long. Please make it 16 letters or shorter.")
+			} else {
+				alert("Please enter a username.")
 			};
 		};
 	} else {
@@ -373,6 +404,8 @@ function clickHandler(event) {
 				upgradesBox = false;
 			} else if (clickX >= 125 && clickX <= 365 && clickY >= 110 && clickY <= 230) {
 				upgrade("auto", "damage")
+			} else if (clickX >= 405 && clickX <= 645 && clickY >= 110 && clickY <= 230) {
+				upgrade("auto", "speed")
 			};
 		};
 	};
@@ -381,9 +414,14 @@ function clickHandler(event) {
 function upgrade(type, upg) {
 	if (type === "auto") {
 		if (upg === "damage") {
-			if ((100 * (upgradeLevels[0] + 2) ** 2) <= gold) {
-				upgradeLevels[0]++;
-
+			if (100 * (upgradeInfo[0][0] + 2) ** 2 <= gold) {
+				gold -= 100 * (upgradeInfo[0][0] + 2) ** 2;
+				upgradeInfo[0][0]++;
+			}
+		} else if (upg === "speed") {
+			if (250 * (upgradeInfo[1][0] + 2) ** 5 <= gold) {
+				gold -= 250 * (upgradeInfo[1][0] + 2) ** 5;
+				upgradeInfo[1][0]++;
 			}
 		}
 	}
@@ -414,17 +452,21 @@ function getMonsterHealth(level) {
 }
 
 function updateDPS() {
-	levelDamage = Math.round((level * 2 + 2) ** 1.2);
-	upgradeDamage = Math.round(upgradeLevels[0] ** 1.35)
+	//Damage
+	var levelDamage = Math.round((level * 2 + 2) ** 1.2);
+	var upgradeDamage = Math.round(upgradeInfo[0][0] ** 1.35)
 	charStats.attackDamage = levelDamage + upgradeDamage;
 	charStats.clickDamage = levelDamage;
+	//Auto speed
+	var speedReductionUpgrade = upgradeInfo[1][0] / 100;
+	charStats.autoSpeed = 2 - speedReductionUpgrade;
 }
 
 function save() {
 	localStorage.setItem("xp", xp);
 	localStorage.setItem("gold", gold);
 	localStorage.setItem("mLevel", monsterStats.level);
-	localStorage.setItem("upgrades", upgradeLevels);
+	localStorage.setItem("upgrades", JSON.stringify(upgradeInfo));
 }
 
 function resetGame() {
