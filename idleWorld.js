@@ -28,6 +28,8 @@ var monsterNames;
 var monsterImg
 var upgradeImg;
 var overStartBtn;
+var overUpgBtn;
+var overUpgExitBtn;
 var upgradesBox;
 var upgradeInfo;
 var clicked;
@@ -78,6 +80,8 @@ function init() {
 	monsterNames = ["Stickman", "Stickman Fighter", "Stickman Warrior"];
 	loadImg();
 	overStartBtn = false;
+	overUpgBtn = false;
+	overUpgExitBtn = false;
 	upgradesBox = false;
 	upgradeInfo = [[0, "Auto Damage"],[0, "Auto Speed"]];
 	//format: [[upgrade 1 level, upgrade 1 name], [upgrade 2 level], [upgrade 2 name]]
@@ -132,12 +136,12 @@ function renderMain() {
 		ctx.fillText("Enter Username", 400, 250);
 		ctx.fillStyle = "#8a1717";
 		if (overStartBtn) {
-			ctx.fillStyle = "#8d1a1a";//add 3 for border
+			ctx.fillStyle = "#901d1d";//add 6 for border
 		};
 		ctx.fillRect(315, 330, 170, 50);
 		ctx.fillStyle = "#a73434";
 		if (overStartBtn) {
-			ctx.fillStyle = "#ac3939";//add 5 for main
+			ctx.fillStyle = "#b13e3e";//add 10 for main
 		};
 		ctx.fillRect(320, 335, 160, 40);
 		ctx.fillStyle = "#000000";
@@ -158,6 +162,9 @@ function renderMain() {
 		ctx.fillStyle = "4d2001";
 		ctx.fillRect(405, 0, 80, 80);
 		ctx.fillStyle = "#7d4f20";
+		if (overUpgBtn) {
+			ctx.fillStyle = "#87592a";//add 10
+		};
 		ctx.fillRect(410, 5, 70, 70);
 		ctx.fillStyle = "#ffffff";
 		ctx.textAlign = "center";
@@ -172,7 +179,10 @@ function renderMain() {
 			ctx.fillRect(120, 80, 600, 440);
 			ctx.fillStyle = "#7d4f20";
 			ctx.fillRect(125, 85, 590, 430);
-			ctx.fillStyle = "#ff6535";
+			ctx.fillStyle = "#f55a2a";
+			if (overUpgExitBtn) {
+				ctx.fillStyle = "#ff6a3a";//add 10
+			};
 			ctx.fillRect(695, 55, 50, 50);
 			ctx.fillStyle = "#ffffff";
 			ctx.textAlign = "center";
@@ -419,7 +429,7 @@ function upgrade(type, upg) {
 				upgradeInfo[0][0]++;
 			}
 		} else if (upg === "speed") {
-			if (250 * (upgradeInfo[1][0] + 2) ** 5 <= gold) {
+			if (250 * (upgradeInfo[1][0] + 2) ** 5 <= gold && upgradeInfo[1][0] < 100) {
 				gold -= 250 * (upgradeInfo[1][0] + 2) ** 5;
 				upgradeInfo[1][0]++;
 			}
@@ -437,6 +447,20 @@ function moveHandler(event) {
 			overStartBtn = false;
 		};
 	};
+	if (inMainScreen && !upgradesBox) {
+		if (mX >= 405 && mX <= 495 && mY >= 0 && mY <= 80) {
+			overUpgBtn = true;
+		} else {
+			overUpgBtn = false;
+		};
+	};
+	if (upgradesBox) {
+		if (mX >= 695 && mX <= 745 && mY >= 55 && mY <= 105) {
+			overUpgExitBtn = true;
+		} else {
+			overUpgExitBtn = false;
+		};
+	}
 }
 
 function resetUsername() {
@@ -459,7 +483,7 @@ function updateDPS() {
 	charStats.clickDamage = levelDamage;
 	//Auto speed
 	var speedReductionUpgrade = upgradeInfo[1][0] / 100;
-	charStats.autoSpeed = 2 - speedReductionUpgrade;
+	charStats.autoStats.autoSpeed = 2 - speedReductionUpgrade;
 }
 
 function save() {
