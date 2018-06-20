@@ -1,8 +1,7 @@
 //external script for overriding javascript timer while chrome tab is closed. Thanks, turuslan! (https://github.com/turuslan/HackTimer)
 (function(s){var w,f={},o=window,l=console,m=Math,z='postMessage',x='HackTimer.js by turuslan: ',v='Initialisation failed',p=0,r='hasOwnProperty',y=[].slice,b=o.Worker;function d(){do{p=0x7FFFFFFF>p?p+1:0}while(f[r](p));return p}if(!/MSIE 10/i.test(navigator.userAgent)){try{s=o.URL.createObjectURL(new Blob(["var f={},p=postMessage,r='hasOwnProperty';onmessage=function(e){var d=e.data,i=d.i,t=d[r]('t')?d.t:0;switch(d.n){case'a':f[i]=setInterval(function(){p(i)},t);break;case'b':if(f[r](i)){clearInterval(f[i]);delete f[i]}break;case'c':f[i]=setTimeout(function(){p(i);if(f[r](i))delete f[i]},t);break;case'd':if(f[r](i)){clearTimeout(f[i]);delete f[i]}break}}"]))}catch(e){}}if(typeof(b)!=='undefined'){try{w=new b(s);o.setInterval=function(c,t){var i=d();f[i]={c:c,p:y.call(arguments,2)};w[z]({n:'a',i:i,t:t});return i};o.clearInterval=function(i){if(f[r](i))delete f[i],w[z]({n:'b',i:i})};o.setTimeout=function(c,t){var i=d();f[i]={c:c,p:y.call(arguments,2),t:!0};w[z]({n:'c',i:i,t:t});return i};o.clearTimeout=function(i){if(f[r](i))delete f[i],w[z]({n:'d',i:i})};w.onmessage=function(e){var i=e.data,c,n;if(f[r](i)){n=f[i];c=n.c;if(n[r]('t'))delete f[i]}if(typeof(c)=='string')try{c=new Function(c)}catch(k){l.log(x+'Error parsing callback code string: ',k)}if(typeof(c)=='function')c.apply(o,n.p)};w.onerror=function(e){l.log(e)};l.log(x+'Initialisation succeeded')}catch(e){l.log(x+v);l.error(e)}}else l.log(x+v+' - HTML5 Web Worker is not supported')})('HackTimerWorker.min.js');
 
-
-
+console.log(localStorage);
 var canvas;
 var usernameInput;
 var usernameDiv;
@@ -363,14 +362,12 @@ function hideHTMLElements() {
 	};
 }
 
-function calcLevel() {
+function calcLevel() {//and dps
 	if (xpCalcLevel <= xp) {
 		level++;
 		xpCalcLevel += Math.round((level + 4) ** 3.6 + (xp / 100));
-		updateDPS();
-		charStats.autoStats.autoDamage = charStats.attackDamage;
-		charStats.clickStats.clickDamage = charStats.attackDamage;
 	};
+	updateDPS();
 }
 
 function clickHandler(event) {
@@ -478,9 +475,9 @@ function getMonsterHealth(level) {
 function updateDPS() {
 	//Damage
 	var levelDamage = Math.round((level * 2 + 2) ** 1.2);
-	var upgradeDamage = Math.round(upgradeInfo[0][0] ** 1.35)
-	charStats.attackDamage = levelDamage + upgradeDamage;
-	charStats.clickDamage = levelDamage;
+	charStats.attackDamage = levelDamage;
+	charStats.autoStats.autoDamage = charStats.attackDamage + Math.round(upgradeInfo[0][0] ** 1.35);
+	charStats.clickStats.clickDamage = charStats.attackDamage;
 	//Auto speed
 	var speedReductionUpgrade = upgradeInfo[1][0] / 100;
 	charStats.autoStats.autoSpeed = 2 - speedReductionUpgrade;
@@ -516,7 +513,7 @@ function run() {
 		hideHTMLElements();
 		calcLevel();
 		if (frame % 1000 === 0) {//saves every 10 seconds
-			save();
+			//save();
 		}
 		frame++;
 		frameChange++;
